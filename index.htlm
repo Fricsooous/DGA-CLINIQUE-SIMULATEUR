@@ -1,0 +1,3096 @@
+```html
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DGA Life Simulator</title>
+
+<style>
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    min-height: 100vh;
+    color: white;
+    background:
+        radial-gradient(circle at top left, #263f70, transparent 35%),
+        radial-gradient(circle at bottom right, #18243d, transparent 40%),
+        #0b1220;
+}
+
+button {
+    font-family: inherit;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* =========================
+   ACCUEIL
+========================= */
+
+#homeScreen {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.homeCard {
+    width: 100%;
+    max-width: 900px;
+    background: rgba(20, 30, 52, 0.96);
+    border: 1px solid rgba(255,255,255,.12);
+    border-radius: 25px;
+    padding: 60px 50px;
+    text-align: center;
+    box-shadow: 0 25px 80px rgba(0,0,0,.5);
+    animation: appear .7s ease;
+}
+
+.homeCard h1 {
+    font-size: 58px;
+    letter-spacing: -2px;
+    margin-bottom: 15px;
+}
+
+.subtitle {
+    font-size: 22px;
+    color: #aebdd8;
+    margin-bottom: 35px;
+}
+
+.description {
+    max-width: 730px;
+    margin: auto;
+    color: #d6deed;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.startButton,
+.restartButton {
+    margin-top: 35px;
+    border: none;
+    border-radius: 13px;
+    padding: 17px 40px;
+    font-size: 18px;
+    font-weight: bold;
+    color: white;
+    background: linear-gradient(135deg,#3975ff,#6748e8);
+    cursor: pointer;
+    transition: .25s;
+}
+
+.startButton:hover,
+.restartButton:hover {
+    transform: translateY(-3px);
+}
+
+/* =========================
+   JEU
+========================= */
+
+#gameScreen {
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.gameContainer {
+    max-width: 1200px;
+    margin: auto;
+}
+
+.topBar {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.topCard {
+    background: rgba(20,30,52,.95);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 15px;
+    padding: 14px 18px;
+}
+
+.statLabel {
+    color: #9eacc7;
+    font-size: 13px;
+    margin-bottom: 6px;
+}
+
+.statValue {
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.energyBar {
+    height: 11px;
+    background: #0d1628;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 7px;
+}
+
+.energyFill {
+    height: 100%;
+    width: 100%;
+    border-radius: 20px;
+    background: linear-gradient(90deg,#42d392,#3fb8ff);
+    transition: .5s;
+}
+
+.moneyPositive {
+    color: #55d89a;
+}
+
+.moneyWarning {
+    color: #ffba4a;
+}
+
+.moneyDanger {
+    color: #ff5c68;
+}
+
+.eventCard {
+    min-height: 610px;
+    background: rgba(20,30,52,.97);
+    border: 1px solid rgba(255,255,255,.1);
+    border-radius: 22px;
+    padding: 40px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.35);
+    animation: slideUp .4s ease;
+}
+
+.eventHeader {
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    padding-bottom: 25px;
+    margin-bottom: 28px;
+}
+
+.eventTime {
+    color: #78a5ff;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.eventTitle {
+    font-size: 35px;
+    margin-bottom: 12px;
+}
+
+.eventDescription {
+    color: #c5d0e3;
+    font-size: 17px;
+    line-height: 1.7;
+}
+
+.choices {
+    display: grid;
+    gap: 13px;
+}
+
+.choiceButton {
+    text-align: left;
+    border: 1px solid rgba(255,255,255,.12);
+    background: rgba(255,255,255,.045);
+    color: white;
+    border-radius: 13px;
+    padding: 18px 20px;
+    cursor: pointer;
+    font-size: 16px;
+    line-height: 1.5;
+    transition: .2s;
+}
+
+.choiceButton:hover {
+    background: rgba(65,110,240,.18);
+    border-color: #5d8cff;
+    transform: translateX(4px);
+}
+
+.choiceLetter {
+    color: #76a2ff;
+    font-weight: bold;
+}
+
+.qcmProgress {
+    margin-top: 20px;
+    color: #91a1bd;
+    font-size: 14px;
+}
+
+.consequenceBox {
+    margin-top: 25px;
+    padding: 18px;
+    background: rgba(255,255,255,.045);
+    border-left: 4px solid #5788ff;
+    border-radius: 10px;
+    color: #d6deed;
+}
+
+/* =========================
+   TOAST
+========================= */
+
+#toast {
+    position: fixed;
+    right: 25px;
+    bottom: 25px;
+    max-width: 380px;
+    padding: 15px 20px;
+    background: #17243c;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 12px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: .3s;
+    pointer-events: none;
+    z-index: 20;
+}
+
+#toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* =========================
+   FIN
+========================= */
+
+#endScreen {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 30px;
+}
+
+.endCard {
+    width: 100%;
+    max-width: 900px;
+    background: rgba(20,30,52,.97);
+    border-radius: 25px;
+    padding: 55px;
+    text-align: center;
+    border: 1px solid rgba(255,255,255,.12);
+    box-shadow: 0 25px 80px rgba(0,0,0,.5);
+    animation: endAppear .7s ease;
+}
+
+.endCard h1 {
+    font-size: 50px;
+    margin-bottom: 15px;
+}
+
+.endSubtitle {
+    font-size: 22px;
+    color: #78a5ff;
+    margin-bottom: 30px;
+}
+
+.endText {
+    color: #d4dceb;
+    font-size: 17px;
+    line-height: 1.8;
+    text-align: left;
+}
+
+.timeline {
+    display: grid;
+    gap: 9px;
+    margin-top: 30px;
+    text-align: left;
+}
+
+.timelineItem {
+    padding: 12px 15px;
+    border-radius: 9px;
+    background: rgba(255,255,255,.045);
+    color: #d5ddeb;
+}
+
+.finalStats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.finalStat {
+    padding: 18px;
+    border-radius: 13px;
+    background: rgba(255,255,255,.045);
+}
+
+.finalStat strong {
+    display: block;
+    font-size: 28px;
+    margin-top: 7px;
+}
+
+/* =========================
+   ANIMATIONS
+========================= */
+
+@keyframes appear {
+    from {
+        opacity: 0;
+        transform: scale(.96);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes endAppear {
+    from {
+        opacity: 0;
+        transform: scale(.92);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 850px) {
+
+    .topBar {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .homeCard {
+        padding: 40px 25px;
+    }
+
+    .homeCard h1 {
+        font-size: 42px;
+    }
+
+    .eventCard {
+        padding: 25px;
+    }
+
+    .eventTitle {
+        font-size: 28px;
+    }
+
+    .endCard {
+        padding: 35px 25px;
+    }
+}
+
+@media (max-width: 550px) {
+
+    .topBar {
+        grid-template-columns: 1fr;
+    }
+
+    .finalStats {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<!-- =========================
+     ACCUEIL
+========================= -->
+
+<section id="homeScreen">
+
+    <div class="homeCard">
+
+        <h1>DGA Life Simulator</h1>
+
+        <div class="subtitle">
+            Une journée de direction où chaque décision compte.
+        </div>
+
+        <div class="description">
+
+            <p>
+                Vous êtes Bastien, directeur général adjoint.
+                Votre journée commence à 8h00 et vous devez tenir
+                jusqu'à la fin de la journée.
+            </p>
+
+            <br>
+
+            <p>
+                Mais cette fois, vous devez surveiller trois choses :
+                votre temps, votre énergie et votre budget.
+            </p>
+
+            <br>
+
+            <p>
+                Certaines décisions permettront de gagner du temps
+                ou de l'énergie, mais pourront coûter extrêmement cher.
+                D'autres seront gratuites mais auront des conséquences
+                plus tard.
+            </p>
+
+            <br>
+
+            <p>
+                Si vous dépensez tout le budget, Cécile vous appellera.
+                Et votre journée pourrait alors se terminer beaucoup
+                plus tôt que prévu.
+            </p>
+
+        </div>
+
+        <button
+            class="startButton"
+            onclick="startGame()"
+        >
+            Commencer la journée
+        </button>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     JEU
+========================= -->
+
+<section id="gameScreen" class="hidden">
+
+    <div class="gameContainer">
+
+        <div class="topBar">
+
+            <div class="topCard">
+                <div class="statLabel">Heure</div>
+                <div
+                    id="timeDisplay"
+                    class="statValue"
+                >
+                    08:00
+                </div>
+            </div>
+
+            <div class="topCard">
+
+                <div class="statLabel">
+                    Energie
+                    <span id="energyNumber">100</span>
+                </div>
+
+                <div class="energyBar">
+                    <div
+                        id="energyFill"
+                        class="energyFill"
+                    ></div>
+                </div>
+
+            </div>
+
+            <div class="topCard">
+
+                <div class="statLabel">
+                    Budget
+                </div>
+
+                <div
+                    id="moneyDisplay"
+                    class="statValue moneyPositive"
+                >
+                    100 000 €
+                </div>
+
+            </div>
+
+            <div class="topCard">
+
+                <div class="statLabel">
+                    Progression
+                </div>
+
+                <div
+                    id="stepNumber"
+                    class="statValue"
+                >
+                    1
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="eventCard">
+
+            <div class="eventHeader">
+
+                <div
+                    id="eventTime"
+                    class="eventTime"
+                ></div>
+
+                <h2
+                    id="eventTitle"
+                    class="eventTitle"
+                ></h2>
+
+                <p
+                    id="eventDescription"
+                    class="eventDescription"
+                ></p>
+
+            </div>
+
+            <div
+                id="choices"
+                class="choices"
+            ></div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+<!-- =========================
+     FIN
+========================= -->
+
+<section
+    id="endScreen"
+    class="hidden"
+>
+
+    <div
+        id="endCard"
+        class="endCard"
+    ></div>
+
+</section>
+
+
+<div id="toast"></div>
+
+
+<script>
+
+/* =========================================================
+   ETAT DU JEU
+========================================================= */
+
+let game;
+
+
+/* =========================================================
+   INITIALISATION
+========================================================= */
+
+function createGame() {
+
+    return {
+
+        time: 8 * 60,
+
+        energy: 100,
+
+        money: 100000,
+
+        step: 1,
+
+        mails: 192,
+
+        qcmQuestion: 1,
+
+        qcmMistakes: 0,
+
+        sodaIgnored: false,
+
+        sodaFixed: false,
+
+        alexisIgnored: false,
+
+        alexisHelped: false,
+
+        cafeteriaRepaired: false,
+
+        expensivePurchase: false,
+
+        taxiUsed: false,
+
+        lunchExpensive: false,
+
+        aiUsed: false,
+
+        meetingPreparation: false,
+
+        hiddenProblem: false,
+
+        finalTriggered: false,
+
+        finished: false,
+
+        decisions: []
+
+    };
+
+}
+
+
+/* =========================================================
+   START
+========================================================= */
+
+function startGame() {
+
+    game = createGame();
+
+    localStorage.removeItem(
+        "dgaLifeSimulatorSave"
+    );
+
+    document.getElementById("homeScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.add("hidden");
+
+    document.getElementById("gameScreen")
+        .classList.remove("hidden");
+
+    renderGame();
+
+}
+
+
+/* =========================================================
+   SAVE
+========================================================= */
+
+function saveGame() {
+
+    localStorage.setItem(
+        "dgaLifeSimulatorSave",
+        JSON.stringify(game)
+    );
+
+}
+
+
+/* =========================================================
+   TIME
+========================================================= */
+
+function changeTime(amount) {
+
+    game.time += amount;
+
+    if (game.time > 23 * 60 + 59) {
+        game.time = 23 * 60 + 59;
+    }
+
+}
+
+
+/* =========================================================
+   ENERGY
+========================================================= */
+
+function changeEnergy(amount) {
+
+    game.energy += amount;
+
+    if (game.energy > 100) {
+        game.energy = 100;
+    }
+
+    if (game.energy < 0) {
+        game.energy = 0;
+    }
+
+}
+
+
+/* =========================================================
+   MONEY
+========================================================= */
+
+function spendMoney(amount) {
+
+    game.money -= amount;
+
+    if (game.money <= 0) {
+
+        game.money = 0;
+
+        showFired();
+
+        return false;
+
+    }
+
+    return true;
+
+}
+
+
+/* =========================================================
+   MONEY FORMAT
+========================================================= */
+
+function formatMoney(amount) {
+
+    return amount.toLocaleString("fr-FR") + " €";
+
+}
+
+
+/* =========================================================
+   TIME FORMAT
+========================================================= */
+
+function formatTime(minutes) {
+
+    const h =
+        Math.floor(minutes / 60);
+
+    const m =
+        minutes % 60;
+
+    return String(h).padStart(2,"0")
+        + ":"
+        + String(m).padStart(2,"0");
+
+}
+
+
+/* =========================================================
+   UI
+========================================================= */
+
+function updateUI() {
+
+    document.getElementById("timeDisplay")
+        .textContent =
+        formatTime(game.time);
+
+    document.getElementById("energyNumber")
+        .textContent =
+        game.energy;
+
+    document.getElementById("moneyDisplay")
+        .textContent =
+        formatMoney(game.money);
+
+    document.getElementById("stepNumber")
+        .textContent =
+        game.step;
+
+    const energyFill =
+        document.getElementById("energyFill");
+
+    energyFill.style.width =
+        game.energy + "%";
+
+    if (game.energy <= 20) {
+
+        energyFill.style.background =
+            "linear-gradient(90deg,#ff3d55,#ff703d)";
+
+    }
+
+    else if (game.energy <= 45) {
+
+        energyFill.style.background =
+            "linear-gradient(90deg,#ffb23d,#ff7b3d)";
+
+    }
+
+    else {
+
+        energyFill.style.background =
+            "linear-gradient(90deg,#42d392,#3fb8ff)";
+
+    }
+
+    const moneyDisplay =
+        document.getElementById("moneyDisplay");
+
+    moneyDisplay.classList.remove(
+        "moneyPositive",
+        "moneyWarning",
+        "moneyDanger"
+    );
+
+    if (game.money > 40000) {
+
+        moneyDisplay.classList.add(
+            "moneyPositive"
+        );
+
+    }
+
+    else if (game.money > 15000) {
+
+        moneyDisplay.classList.add(
+            "moneyWarning"
+        );
+
+    }
+
+    else {
+
+        moneyDisplay.classList.add(
+            "moneyDanger"
+        );
+
+    }
+
+}
+
+
+/* =========================================================
+   EVENT
+========================================================= */
+
+function renderEvent(
+    time,
+    title,
+    description,
+    choices
+) {
+
+    document.getElementById("eventTime")
+        .textContent = time;
+
+    document.getElementById("eventTitle")
+        .textContent = title;
+
+    document.getElementById("eventDescription")
+        .innerHTML = description;
+
+    const container =
+        document.getElementById("choices");
+
+    container.innerHTML = "";
+
+    choices.forEach((choice,index) => {
+
+        const button =
+            document.createElement("button");
+
+        button.className =
+            "choiceButton";
+
+        button.innerHTML =
+            `
+            <span class="choiceLetter">
+                ${String.fromCharCode(65 + index)}.
+            </span>
+            ${choice.text}
+            `;
+
+        button.onclick =
+            choice.action;
+
+        container.appendChild(button);
+
+    });
+
+}
+
+
+/* =========================================================
+   CONTINUER
+========================================================= */
+
+function continueTo(step) {
+
+    if (game.energy <= 0) {
+
+        showGameOver();
+
+        return;
+
+    }
+
+    game.step = step;
+
+    game.decisions.push(step);
+
+    saveGame();
+
+    renderGame();
+
+}
+
+
+/* =========================================================
+   RENDER
+========================================================= */
+
+function renderGame() {
+
+    updateUI();
+
+    switch(game.step) {
+
+        case 1:
+            step1();
+            break;
+
+        case 2:
+            step2();
+            break;
+
+        case 3:
+            step3();
+            break;
+
+        case 4:
+            step4();
+            break;
+
+        case 5:
+            step5();
+            break;
+
+        case 6:
+            renderQCM();
+            break;
+
+        case 7:
+            step7();
+            break;
+
+        case 8:
+            step8();
+            break;
+
+        case 9:
+            step9();
+            break;
+
+        case 10:
+            step10();
+            break;
+
+        case 11:
+            step11();
+            break;
+
+        case "FINAL":
+            finalStep();
+            break;
+
+    }
+
+}
+
+
+/* =========================================================
+   08:00 MAILS
+========================================================= */
+
+function step1() {
+
+    renderEvent(
+
+        "08:00",
+        "192 mails vous attendent",
+
+        `
+        Vous arrivez au bureau.
+        Votre boîte mail affiche
+        <strong>192 messages non lus</strong>.
+        <br><br>
+        Parmi eux, certains sont urgents,
+        certains sont importants et beaucoup
+        pourraient probablement attendre.
+        <br><br>
+        Votre première décision va déjà influencer
+        le reste de votre matinée.
+        `,
+
+        [
+
+            {
+                text:
+                "Lire les 192 mails un par un",
+
+                action: () => {
+
+                    changeTime(45);
+                    changeEnergy(-15);
+
+                    continueTo(2);
+
+                }
+
+            },
+
+            {
+                text:
+                "Faire venir une personne pour trier les mails",
+
+                action: () => {
+
+                    if (!spendMoney(4500)) return;
+
+                    changeTime(10);
+                    changeEnergy(-2);
+
+                    continueTo(2);
+
+                }
+
+            },
+
+            {
+                text:
+                "Traiter uniquement les mails urgents",
+
+                action: () => {
+
+                    changeTime(20);
+                    changeEnergy(-5);
+
+                    game.mails = 176;
+
+                    continueTo(2);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ignorer les mails jusqu'à 10h",
+
+                action: () => {
+
+                    changeEnergy(4);
+
+                    game.hiddenProblem = true;
+
+                    continueTo(2);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   09:00 AMELIE
+========================================================= */
+
+function step2() {
+
+    renderEvent(
+
+        "09:00",
+        "Le message d'Amélie",
+
+        `
+        Votre téléphone affiche :
+        <br><br>
+
+        <strong>
+        « Peux-tu venir dans mon bureau s'il te plaît Bastien ?
+        J'ai une petite question... »
+        </strong>
+
+        <br><br>
+
+        Vous savez que les « petites questions »
+        peuvent parfois prendre beaucoup de temps.
+        `,
+
+        [
+
+            {
+                text:
+                "Y aller immédiatement",
+
+                action: () => {
+
+                    changeTime(20);
+                    changeEnergy(-6);
+
+                    continueTo(3);
+
+                }
+
+            },
+
+            {
+                text:
+                "Proposer un rendez-vous dans quinze minutes",
+
+                action: () => {
+
+                    changeTime(15);
+                    changeEnergy(-3);
+
+                    continueTo(3);
+
+                }
+
+            },
+
+            {
+                text:
+                "Lui envoyer un message détaillé",
+
+                action: () => {
+
+                    changeTime(8);
+                    changeEnergy(-5);
+
+                    continueTo(3);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne pas répondre",
+
+                action: () => {
+
+                    game.hiddenProblem = true;
+
+                    changeEnergy(2);
+
+                    continueTo(3);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   10:30 PLONGE
+========================================================= */
+
+function step3() {
+
+    renderEvent(
+
+        "10:30",
+        "La plonge du self est en panne",
+
+        `
+        La plonge industrielle du self vient de tomber en panne.
+        <br><br>
+
+        Le responsable vous explique que la situation
+        peut être gérée temporairement, mais qu'une réparation
+        complète coûterait cher.
+        <br><br>
+
+        Vous devez maintenant choisir entre économiser
+        le budget ou acheter une solution rapide.
+        `,
+
+        [
+
+            {
+                text:
+                "Faire une réparation temporaire",
+
+                action: () => {
+
+                    changeTime(30);
+                    changeEnergy(-8);
+
+                    game.hiddenProblem = true;
+
+                    continueTo(4);
+
+                }
+
+            },
+
+            {
+                text:
+                "Faire intervenir le service technique",
+
+                action: () => {
+
+                    if (!spendMoney(3000)) return;
+
+                    changeTime(20);
+                    changeEnergy(-4);
+
+                    game.cafeteriaRepaired = true;
+
+                    continueTo(4);
+
+                }
+
+            },
+
+            {
+                text:
+                "Remplacer complètement la plonge pour 60 000 €",
+
+                action: () => {
+
+                    if (!spendMoney(60000)) return;
+
+                    changeTime(5);
+                    changeEnergy(2);
+
+                    game.cafeteriaRepaired = true;
+                    game.expensivePurchase = true;
+
+                    showToast(
+                        "Vous venez de dépenser 60 000 €."
+                    );
+
+                    continueTo(4);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne rien faire",
+
+                action: () => {
+
+                    changeEnergy(2);
+
+                    game.sodaIgnored = true;
+                    game.hiddenProblem = true;
+
+                    continueTo(4);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   11:30 TELEPHONE
+========================================================= */
+
+function step4() {
+
+    renderEvent(
+
+        "11:30",
+        "Un appel important",
+
+        `
+        Votre téléphone professionnel sonne.
+        <br><br>
+
+        Vous ne reconnaissez pas le numéro.
+        <br><br>
+
+        Il pourrait s'agir d'un problème important
+        ou simplement d'une demande qui aurait pu être
+        envoyée par mail.
+        `,
+
+        [
+
+            {
+                text:
+                "Répondre immédiatement",
+
+                action: () => {
+
+                    changeTime(20);
+                    changeEnergy(-6);
+
+                    continueTo(5);
+
+                }
+
+            },
+
+            {
+                text:
+                "Répondre avec quelques minutes de retard",
+
+                action: () => {
+
+                    changeTime(8);
+                    changeEnergy(-3);
+
+                    continueTo(5);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne pas répondre",
+
+                action: () => {
+
+                    changeEnergy(2);
+
+                    game.hiddenProblem = true;
+
+                    continueTo(5);
+
+                }
+
+            },
+
+            {
+                text:
+                "Laisser un message et demander un rappel",
+
+                action: () => {
+
+                    changeTime(5);
+                    changeEnergy(-1);
+
+                    continueTo(5);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   12:30 DEJEUNER
+========================================================= */
+
+function step5() {
+
+    renderEvent(
+
+        "12:30",
+        "Le déjeuner",
+
+        `
+        Il est enfin temps de déjeuner.
+        <br><br>
+
+        Vous pouvez économiser de l'argent,
+        gagner du temps ou prendre un vrai repas.
+        `,
+
+        [
+
+            {
+                text:
+                "Déjeuner normalement au self",
+
+                action: () => {
+
+                    changeTime(35);
+                    changeEnergy(8);
+
+                    continueTo(6);
+
+                }
+
+            },
+
+            {
+                text:
+                "Commander un repas livré au bureau",
+
+                action: () => {
+
+                    if (!spendMoney(35)) return;
+
+                    changeTime(15);
+                    changeEnergy(10);
+
+                    game.lunchExpensive = true;
+
+                    continueTo(6);
+
+                }
+
+            },
+
+            {
+                text:
+                "Manger rapidement devant l'ordinateur",
+
+                action: () => {
+
+                    changeTime(10);
+                    changeEnergy(1);
+
+                    continueTo(6);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne pas déjeuner pour gagner du temps",
+
+                action: () => {
+
+                    changeTime(0);
+                    changeEnergy(-12);
+
+                    continueTo(6);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   QCM 10 QUESTIONS
+========================================================= */
+
+function renderQCM() {
+
+    const questions = [
+
+        {
+            q:
+            "Un fournisseur vous annonce une hausse de 8 % sur un contrat important. Quelle est la meilleure réaction ?",
+
+            answers: [
+                "Accepter immédiatement pour éviter de perdre le fournisseur.",
+                "Refuser immédiatement et chercher un autre fournisseur.",
+                "Analyser l'impact, vérifier le contrat et négocier avant de décider.",
+                "Payer temporairement sans prévenir personne."
+            ],
+
+            correct: 2
+        },
+
+        {
+            q:
+            "Deux services vous demandent simultanément votre aide. Le premier est urgent mais peu important, le second est important mais peut attendre deux heures. Que faites-vous ?",
+
+            answers: [
+                "Traiter automatiquement l'urgence.",
+                "Faire le second uniquement.",
+                "Évaluer les conséquences des deux demandes et organiser leur traitement.",
+                "Demander aux deux services d'attendre."
+            ],
+
+            correct: 2
+        },
+
+        {
+            q:
+            "Vous constatez qu'une dépense de 20 000 € n'était pas prévue dans le budget. Que faites-vous ?",
+
+            answers: [
+                "La payer sans rien dire.",
+                "L'annuler automatiquement.",
+                "Vérifier sa nécessité, son impact budgétaire et demander une validation si nécessaire.",
+                "La faire passer sur un autre budget."
+            ],
+
+            correct: 2
+        },
+
+        {
+            q:
+            "Une réunion importante commence dans dix minutes et vous avez encore trois mails urgents. Quelle est la meilleure stratégie ?",
+
+            answers: [
+                "Répondre aux trois mails et arriver en retard.",
+                "Ignorer définitivement les trois mails.",
+                "Identifier ce qui nécessite réellement une réponse immédiate puis aller à la réunion.",
+                "Annuler la réunion."
+            ],
+
+            correct: 2
+        },
+
+        {
+            q:
+            "Un collègue vous propose une solution très rapide mais trois fois plus chère que la solution normale. Que faites-vous ?",
+
+            answers: [
+                "Choisir systématiquement la solution rapide.",
+                "Choisir systématiquement la moins chère.",
+                "Comparer le coût avec le gain de temps et les conséquences.",
+                "Laisser le collègue choisir."
+            ],
+
+            correct: 2
+        },
+
+        {
+            q:
+            "Vous êtes très fatigué mais une décision financière importante doit être prise. Quelle attitude est la plus prudente ?",
+
+            answers: [
+                "Décider très rapidement.",
+                "Demander les informations essentielles et vérifier les conséquences avant de décider.",
+                "Reporter toutes les décisions.",
+                "Choisir la solution la plus chère."
+            ],
+
+            correct: 1
+        },
+
+        {
+            q:
+            "Un problème de cantine semble réglé mais vous n'avez pas reçu de confirmation du prestataire. Que faites-vous ?",
+
+            answers: [
+                "Considérer que le problème est définitivement réglé.",
+                "Vérifier que la solution fonctionne réellement.",
+                "Attendre plusieurs jours.",
+                "Commander immédiatement une nouvelle installation."
+            ],
+
+            correct: 1
+        },
+
+        {
+            q:
+            "Votre budget commence à devenir faible. Quelle décision est la plus raisonnable ?",
+
+            answers: [
+                "Dépensez rapidement ce qu'il reste avant la fin de la journée.",
+                "Ne plus rien faire du tout.",
+                "Prioriser les dépenses réellement indispensables.",
+                "Doubler toutes les dépenses pour gagner du temps."
+            ],
+
+            correct: 2
+        },
+
+        {
+            q:
+            "Un collaborateur vous signale un risque qui ne s'est pas encore produit. Que faites-vous ?",
+
+            answers: [
+                "L'ignorer puisque le problème n'existe pas encore.",
+                "Analyser le risque et préparer une solution proportionnée.",
+                "Dépenser immédiatement 50 000 €.",
+                "Reporter le problème au lendemain."
+            ],
+
+            correct: 1
+        },
+
+        {
+            q:
+            "En fin de journée, vous devez choisir entre terminer rapidement une tâche importante ou garder une réserve d'énergie pour une urgence possible. Que faites-vous ?",
+
+            answers: [
+                "Tout terminer immédiatement.",
+                "Ne plus travailler.",
+                "Évaluer la probabilité de l'urgence et conserver une marge raisonnable.",
+                "Dépensez de l'argent pour que quelqu'un fasse tout."
+            ],
+
+            correct: 2
+        }
+
+    ];
+
+    const q =
+        questions[game.qcmQuestion - 1];
+
+    renderEvent(
+
+        "14:00",
+        "Evaluation de gestion",
+        `
+        Le représentant revient avec une série de questions.
+        <br><br>
+
+        Cette fois, il ne suffit pas de choisir la réponse
+        qui paraît la plus rapide.
+        <br><br>
+
+        <strong>
+        ${q.q}
+        </strong>
+
+        <div class="qcmProgress">
+            Question ${game.qcmQuestion} sur 10
+        </div>
+        `,
+
+        q.answers.map((answer,index) => ({
+
+            text: answer,
+
+            action: () => {
+
+                if (index === q.correct) {
+
+                    changeEnergy(1);
+
+                    if (game.qcmQuestion === 10) {
+
+                        changeTime(20);
+
+                        if (game.qcmMistakes === 0) {
+
+                            changeEnergy(5);
+
+                        }
+
+                        else {
+
+                            changeEnergy(-5);
+
+                        }
+
+                        game.step = 7;
+
+                        if (game.time < 15 * 60 + 15) {
+
+                            game.time =
+                                15 * 60 + 15;
+
+                        }
+
+                        game.qcmQuestion = 1;
+
+                        saveGame();
+
+                        renderGame();
+
+                    }
+
+                    else {
+
+                        game.qcmQuestion++;
+
+                        saveGame();
+
+                        renderGame();
+
+                    }
+
+                }
+
+                else {
+
+                    game.qcmMistakes++;
+
+                    changeEnergy(-7);
+
+                    changeTime(5);
+
+                    showToast(
+                        "Mauvaise réponse. Vous perdez du temps et de l'énergie."
+                    );
+
+                    if (game.qcmMistakes >= 3) {
+
+                        game.qcmQuestion = 1;
+
+                        changeEnergy(-5);
+
+                        showToast(
+                            "Le représentant vous demande de recommencer le questionnaire."
+                        );
+
+                    }
+
+                    saveGame();
+
+                    renderGame();
+
+                }
+
+            }
+
+        }))
+
+    );
+
+}
+
+
+/* =========================================================
+   15:15
+========================================================= */
+
+function step7() {
+
+    renderEvent(
+
+        "15:15",
+        "247 nouveaux mails",
+
+        `
+        Vous retournez à votre bureau.
+        <br><br>
+
+        La boîte affiche maintenant
+        <strong>247 nouveaux messages</strong>.
+        <br><br>
+
+        Parmi eux se trouve un message urgent
+        concernant une décision que vous aviez prise
+        pendant la matinée.
+        `,
+
+        [
+
+            {
+                text:
+                "Tout traiter immédiatement",
+
+                action: () => {
+
+                    changeTime(35);
+                    changeEnergy(-8);
+
+                    continueTo(8);
+
+                }
+
+            },
+
+            {
+                text:
+                "Traiter uniquement les messages critiques",
+
+                action: () => {
+
+                    changeTime(15);
+                    changeEnergy(-4);
+
+                    continueTo(8);
+
+                }
+
+            },
+
+            {
+                text:
+                "Faire appel à une assistance administrative",
+
+                action: () => {
+
+                    if (!spendMoney(12000)) return;
+
+                    changeTime(8);
+                    changeEnergy(2);
+
+                    continueTo(8);
+
+                }
+
+            },
+
+            {
+                text:
+                "Utiliser une IA pour trier les messages",
+
+                action: () => {
+
+                    changeTime(10);
+                    changeEnergy(3);
+
+                    game.aiUsed = true;
+
+                    continueTo(8);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   16:00 ALEXIS
+========================================================= */
+
+function step8() {
+
+    renderEvent(
+
+        "16:00",
+        "Alexis vous demande de l'aide",
+
+        `
+        Vous recevez un message d'Alexis.
+        <br><br>
+
+        Il vous demande de l'aide pour quelque chose
+        qu'il aimerait régler aujourd'hui.
+        <br><br>
+
+        Vous êtes déjà bien avancé dans votre journée,
+        mais ce choix pourrait avoir une conséquence
+        sur la fin de votre soirée.
+        `,
+
+        [
+
+            {
+                text:
+                "L'appeler immédiatement",
+
+                action: () => {
+
+                    changeTime(20);
+                    changeEnergy(-7);
+
+                    game.alexisHelped = true;
+
+                    continueTo(9);
+
+                }
+
+            },
+
+            {
+                text:
+                "Lui proposer de l'aider après le travail",
+
+                action: () => {
+
+                    changeTime(5);
+                    changeEnergy(-2);
+
+                    game.alexisHelped = true;
+
+                    continueTo(9);
+
+                }
+
+            },
+
+            {
+                text:
+                "Lui répondre rapidement",
+
+                action: () => {
+
+                    changeTime(5);
+                    changeEnergy(-1);
+
+                    continueTo(9);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne pas répondre",
+
+                action: () => {
+
+                    changeEnergy(4);
+
+                    game.alexisIgnored = true;
+
+                    continueTo(9);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   17:00 DEPENSE
+========================================================= */
+
+function step9() {
+
+    renderEvent(
+
+        "17:00",
+        "Une dernière dépense importante",
+
+        `
+        Un responsable vient vous voir.
+        <br><br>
+
+        Un équipement doit être acheté avant demain matin.
+        <br><br>
+
+        Le prix est élevé.
+        Vous pouvez payer maintenant,
+        chercher une solution moins chère,
+        ou prendre le risque d'attendre.
+        `,
+
+        [
+
+            {
+                text:
+                "Acheter immédiatement l'équipement pour 25 000 €",
+
+                action: () => {
+
+                    if (!spendMoney(25000)) return;
+
+                    changeTime(5);
+                    changeEnergy(4);
+
+                    game.expensivePurchase = true;
+
+                    continueTo(10);
+
+                }
+
+            },
+
+            {
+                text:
+                "Chercher une solution à 8 000 €",
+
+                action: () => {
+
+                    if (!spendMoney(8000)) return;
+
+                    changeTime(25);
+                    changeEnergy(-6);
+
+                    continueTo(10);
+
+                }
+
+            },
+
+            {
+                text:
+                "Louer temporairement l'équipement pour 3 000 €",
+
+                action: () => {
+
+                    if (!spendMoney(3000)) return;
+
+                    changeTime(15);
+                    changeEnergy(-2);
+
+                    continueTo(10);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne rien acheter pour l'instant",
+
+                action: () => {
+
+                    changeEnergy(2);
+
+                    game.hiddenProblem = true;
+
+                    continueTo(10);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   18:00 ALEXIS
+========================================================= */
+
+function step10() {
+
+    renderEvent(
+
+        "18:00",
+        "Nouveau message d'Alexis",
+
+        `
+        Votre téléphone affiche :
+        <br><br>
+
+        <strong>
+        « Salut Bastien, désolé de te déranger aussi tard,
+        mais j'ai besoin de ton aide pour quelque chose.
+        Tu peux me rappeler ? »
+        </strong>
+
+        <br><br>
+
+        La fin de journée approche.
+        `,
+
+        [
+
+            {
+                text:
+                "Le rappeler immédiatement",
+
+                action: () => {
+
+                    changeTime(15);
+                    changeEnergy(-4);
+
+                    game.alexisHelped = true;
+
+                    continueTo(11);
+
+                }
+
+            },
+
+            {
+                text:
+                "Lui dire que vous le rappellerez après votre dernière réunion",
+
+                action: () => {
+
+                    changeTime(5);
+                    changeEnergy(-1);
+
+                    continueTo(11);
+
+                }
+
+            },
+
+            {
+                text:
+                "Lui répondre par message",
+
+                action: () => {
+
+                    changeTime(5);
+                    changeEnergy(-2);
+
+                    continueTo(11);
+
+                }
+
+            },
+
+            {
+                text:
+                "Ne pas répondre",
+
+                action: () => {
+
+                    game.alexisIgnored = true;
+
+                    changeEnergy(3);
+
+                    continueTo(11);
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   18:30 CONSEQUENCE
+========================================================= */
+
+function step11() {
+
+    let description = `
+        Vous pensez enfin voir la fin de la journée.
+        <br><br>
+
+        Mais une dernière réunion est ajoutée à votre agenda.
+        <br><br>
+
+        Avant de partir, vous devez gérer une dernière
+        situation concernant les syndicats.
+    `;
+
+    if (game.hiddenProblem) {
+
+        description += `
+            <br><br>
+            Plusieurs problèmes que vous aviez laissés de côté
+            remontent maintenant en même temps.
+        `;
+
+        changeEnergy(-8);
+
+        game.hiddenProblem = false;
+
+    }
+
+    if (game.aiUsed) {
+
+        description += `
+            <br><br>
+            Heureusement, le tri automatique des mails
+            vous a permis d'identifier rapidement les dossiers
+            réellement importants.
+        `;
+
+    }
+
+    renderEvent(
+
+        "18:30",
+        "Dernière réunion",
+
+        description,
+
+        [
+
+            {
+                text:
+                "Préparer soigneusement la réunion",
+
+                action: () => {
+
+                    changeTime(25);
+                    changeEnergy(-6);
+
+                    game.meetingPreparation = true;
+
+                    continueTo("FINAL");
+
+                }
+
+            },
+
+            {
+                text:
+                "Préparer uniquement les points essentiels",
+
+                action: () => {
+
+                    changeTime(15);
+                    changeEnergy(-3);
+
+                    game.meetingPreparation = true;
+
+                    continueTo("FINAL");
+
+                }
+
+            },
+
+            {
+                text:
+                "Entrer directement en réunion",
+
+                action: () => {
+
+                    changeTime(10);
+                    changeEnergy(-5);
+
+                    continueTo("FINAL");
+
+                }
+
+            },
+
+            {
+                text:
+                "Demander à quelqu'un de préparer les documents pour 2 000 €",
+
+                action: () => {
+
+                    if (!spendMoney(2000)) return;
+
+                    changeTime(5);
+                    changeEnergy(1);
+
+                    game.meetingPreparation = true;
+
+                    continueTo("FINAL");
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   FINAL
+========================================================= */
+
+function finalStep() {
+
+    if (game.finalTriggered) return;
+
+    game.finalTriggered = true;
+
+    updateUI();
+
+    let description = `
+        La réunion finale commence.
+        <br><br>
+
+        Karine vous appelle avant le début.
+        <br><br>
+
+        <strong>
+        « Salut Bastien, désolée de t'appeler si tard…
+        Je voulais te prévenir : il faut finalement faire
+        une réunion avec tous les syndicats. »
+        </strong>
+    `;
+
+    if (game.meetingPreparation) {
+
+        description += `
+            <br><br>
+            Vous avez préparé correctement les documents.
+            La réunion devrait être difficile,
+            mais vous êtes prêt.
+        `;
+
+    }
+    else {
+
+        description += `
+            <br><br>
+            Vous entrez dans la réunion sans avoir eu
+            le temps de tout préparer.
+        `;
+
+    }
+
+    renderEvent(
+
+        "19:00",
+        "La réunion avec les syndicats",
+
+        description,
+
+        [
+
+            {
+                text:
+                "Accepter la réunion et gérer la situation",
+
+                action: () => {
+
+                    changeTime(30);
+                    changeEnergy(-10);
+
+                    if (game.sodaIgnored) {
+
+                        changeEnergy(-8);
+
+                    }
+
+                    if (!game.meetingPreparation) {
+
+                        changeEnergy(-6);
+
+                    }
+
+                    if (game.energy <= 0) {
+
+                        showGameOver();
+
+                        return;
+
+                    }
+
+                    if (game.energy >= 20 &&
+                        game.money >= 5000) {
+
+                        alexisFinal();
+
+                    }
+
+                    else if (game.energy >= 10) {
+
+                        showTiredEnding();
+
+                    }
+
+                    else {
+
+                        showGameOver();
+
+                    }
+
+                }
+
+            },
+
+            {
+                text:
+                "Reporter la réunion",
+
+                action: () => {
+
+                    showDefeat(
+                        "Vous reportez la réunion. Le lendemain, les syndicats bloquent plusieurs décisions importantes."
+                    );
+
+                }
+
+            },
+
+            {
+                text:
+                "Demander à Karine de gérer",
+
+                action: () => {
+
+                    if (!spendMoney(15000)) return;
+
+                    showSecretEnding();
+
+                }
+
+            },
+
+            {
+                text:
+                "Dire que vous n'avez plus l'énergie",
+
+                action: () => {
+
+                    showDefeat(
+                        "Vous quittez la réunion avant qu'elle commence. La situation professionnelle se dégrade rapidement."
+                    );
+
+                }
+
+            }
+
+        ]
+
+    );
+
+}
+
+
+/* =========================================================
+   FINAL ALEXIS
+========================================================= */
+
+function alexisFinal() {
+
+    updateUI();
+
+    document.getElementById("eventTime")
+        .textContent = "19:30";
+
+    document.getElementById("eventTitle")
+        .textContent = "Vous rappelez Alexis";
+
+    document.getElementById("eventDescription")
+        .innerHTML = `
+
+        La réunion est terminée.
+        <br><br>
+
+        Vous avez réussi à gérer les syndicats
+        sans épuiser complètement votre énergie
+        et sans vider le budget.
+        <br><br>
+
+        Vous rappelez Alexis.
+        <br><br>
+
+        Après avoir discuté quelques minutes,
+        vous lui proposez :
+        <strong>d'aller manger à la pizzeria.</strong>
+        <br><br>
+
+        Alexis accepte.
+        Vous lui expliquez que vous arriverez
+        un peu plus tard.
+        <br><br>
+
+        La journée de travail est enfin terminée.
+
+    `;
+
+    const container =
+        document.getElementById("choices");
+
+    container.innerHTML = "";
+
+    const button =
+        document.createElement("button");
+
+    button.className =
+        "choiceButton";
+
+    button.innerHTML =
+        `
+        <span class="choiceLetter">
+            Continuer.
+        </span>
+        Rejoindre Alexis à la pizzeria.
+        `;
+
+    button.onclick =
+        showVictory;
+
+    container.appendChild(button);
+
+}
+
+
+/* =========================================================
+   VICTOIRE
+========================================================= */
+
+function showVictory() {
+
+    game.finished = true;
+
+    document.getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("endCard")
+        .innerHTML = `
+
+        <h1>Journée réussie</h1>
+
+        <div class="endSubtitle">
+            Vous avez réussi à tout gérer.
+        </div>
+
+        <div class="endText">
+
+            <p>
+                Il est maintenant 19h30.
+                La réunion avec les syndicats est terminée.
+                Les principales situations de la journée
+                ont été gérées.
+            </p>
+
+            <br>
+
+            <p>
+                Vous avez ensuite rappelé Alexis.
+                Vous lui avez proposé d'aller manger
+                à la pizzeria.
+            </p>
+
+            <br>
+
+            <p>
+                Il a accepté.
+                Vous lui avez expliqué que vous arriveriez
+                un peu plus tard, puis vous avez enfin quitté
+                le travail.
+            </p>
+
+            <br>
+
+            <p>
+                Vous avez réussi à terminer votre journée
+                avec suffisamment d'énergie et sans
+                mettre le budget en danger.
+            </p>
+
+        </div>
+
+        <div class="timeline">
+
+            <div class="timelineItem">
+                08:00 — 192 mails
+            </div>
+
+            <div class="timelineItem">
+                09:00 — Message d'Amélie
+            </div>
+
+            <div class="timelineItem">
+                10:30 — Panne de la plonge du self
+            </div>
+
+            <div class="timelineItem">
+                12:30 — Déjeuner
+            </div>
+
+            <div class="timelineItem">
+                14:00 — Evaluation de gestion
+            </div>
+
+            <div class="timelineItem">
+                15:15 — 247 nouveaux mails
+            </div>
+
+            <div class="timelineItem">
+                16:00 — Alexis
+            </div>
+
+            <div class="timelineItem">
+                17:00 — Dernière grosse décision financière
+            </div>
+
+            <div class="timelineItem">
+                18:30 — Réunion finale
+            </div>
+
+            <div class="timelineItem">
+                19:30 — Pizzeria avec Alexis
+            </div>
+
+        </div>
+
+        <div class="finalStats">
+
+            <div class="finalStat">
+                Energie restante
+                <strong>
+                    ${game.energy}
+                </strong>
+            </div>
+
+            <div class="finalStat">
+                Budget restant
+                <strong>
+                    ${formatMoney(game.money)}
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="restartButton"
+            onclick="startGame()"
+        >
+            Recommencer
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   FIN FATIGUE
+========================================================= */
+
+function showTiredEnding() {
+
+    game.finished = true;
+
+    document.getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("endCard")
+        .innerHTML = `
+
+        <h1>Journée terminée</h1>
+
+        <div class="endSubtitle">
+            Vous avez réussi, mais de justesse.
+        </div>
+
+        <div class="endText">
+
+            <p>
+                La journée est terminée.
+                Vous avez réussi à gérer les problèmes
+                les plus importants, mais votre énergie
+                est presque épuisée.
+            </p>
+
+            <br>
+
+            <p>
+                Vous appelez tout de même Alexis,
+                mais vous lui dites que vous arriverez
+                plus tard à la pizzeria.
+            </p>
+
+            <br>
+
+            <p>
+                Vous avez gagné la journée professionnelle,
+                mais demain risque d'être difficile.
+            </p>
+
+        </div>
+
+        <div class="finalStats">
+
+            <div class="finalStat">
+                Energie restante
+                <strong>
+                    ${game.energy}
+                </strong>
+            </div>
+
+            <div class="finalStat">
+                Budget restant
+                <strong>
+                    ${formatMoney(game.money)}
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="restartButton"
+            onclick="startGame()"
+        >
+            Recommencer
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   LICENCIEMENT
+========================================================= */
+
+function showFired() {
+
+    game.finished = true;
+
+    document.getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("endCard")
+        .classList.add("fired");
+
+    document.getElementById("endCard")
+        .innerHTML = `
+
+        <h1>Licenciement</h1>
+
+        <div class="endSubtitle">
+            Vous avez dépensé tout le budget.
+        </div>
+
+        <div class="endText">
+
+            <p>
+                Votre téléphone sonne.
+            </p>
+
+            <br>
+
+            <p>
+                C'est Cécile.
+            </p>
+
+            <br>
+
+            <p>
+                « Bastien, il faut qu'on parle.
+                J'ai regardé les dépenses de la journée
+                et tu as complètement dépassé le budget
+                qui t'était accordé. »
+            </p>
+
+            <br>
+
+            <p>
+                « Je comprends que certaines dépenses
+                étaient nécessaires, mais on ne peut pas
+                continuer comme ça. »
+            </p>
+
+            <br>
+
+            <p>
+                « Je suis désolée, mais je dois mettre fin
+                à ton contrat. »
+            </p>
+
+            <br>
+
+            <p>
+                Vous aviez peut-être réussi à gérer votre
+                temps et votre énergie, mais votre budget
+                est arrivé à zéro.
+            </p>
+
+        </div>
+
+        <div class="finalStats">
+
+            <div class="finalStat">
+                Energie restante
+                <strong>
+                    ${game.energy}
+                </strong>
+            </div>
+
+            <div class="finalStat">
+                Budget restant
+                <strong>
+                    0 €
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="restartButton"
+            onclick="startGame()"
+        >
+            Recommencer
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   GAME OVER ENERGIE
+========================================================= */
+
+function showGameOver() {
+
+    game.finished = true;
+
+    document.getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("endCard")
+        .innerHTML = `
+
+        <h1>Epuisement</h1>
+
+        <div class="endSubtitle">
+            Vous n'avez plus assez d'énergie.
+        </div>
+
+        <div class="endText">
+
+            <p>
+                La journée a finalement eu raison de vous.
+            </p>
+
+            <br>
+
+            <p>
+                Vous avez dû gérer trop de problèmes,
+                prendre trop de décisions et accumuler
+                trop de fatigue.
+            </p>
+
+            <br>
+
+            <p>
+                La journée professionnelle est terminée,
+                mais vous n'avez pas réussi à atteindre
+                votre objectif final.
+            </p>
+
+        </div>
+
+        <div class="finalStats">
+
+            <div class="finalStat">
+                Energie
+                <strong>
+                    0
+                </strong>
+            </div>
+
+            <div class="finalStat">
+                Budget
+                <strong>
+                    ${formatMoney(game.money)}
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="restartButton"
+            onclick="startGame()"
+        >
+            Recommencer
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   DEFAITE
+========================================================= */
+
+function showDefeat(message) {
+
+    game.finished = true;
+
+    document.getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("endCard")
+        .innerHTML = `
+
+        <h1>Mauvaise fin</h1>
+
+        <div class="endSubtitle">
+            La journée ne s'est pas terminée comme prévu.
+        </div>
+
+        <div class="endText">
+
+            <p>
+                ${message}
+            </p>
+
+            <br>
+
+            <p>
+                Vous quittez finalement le bureau,
+                mais vous savez déjà que demain
+                sera compliqué.
+            </p>
+
+        </div>
+
+        <div class="finalStats">
+
+            <div class="finalStat">
+                Energie
+                <strong>
+                    ${game.energy}
+                </strong>
+            </div>
+
+            <div class="finalStat">
+                Budget
+                <strong>
+                    ${formatMoney(game.money)}
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="restartButton"
+            onclick="startGame()"
+        >
+            Recommencer
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   FIN SECRETE
+========================================================= */
+
+function showSecretEnding() {
+
+    game.finished = true;
+
+    document.getElementById("gameScreen")
+        .classList.add("hidden");
+
+    document.getElementById("endScreen")
+        .classList.remove("hidden");
+
+    document.getElementById("endCard")
+        .innerHTML = `
+
+        <h1>Fin alternative</h1>
+
+        <div class="endSubtitle">
+            Vous avez acheté votre tranquillité.
+        </div>
+
+        <div class="endText">
+
+            <p>
+                Karine accepte de prendre la réunion
+                en charge à votre place.
+            </p>
+
+            <br>
+
+            <p>
+                Vous avez dépensé 15 000 € pour obtenir
+                cette solution, mais vous gagnez énormément
+                de temps et d'énergie.
+            </p>
+
+            <br>
+
+            <p>
+                Vous quittez donc le bureau plus tôt.
+                La journée est techniquement sauvée...
+                mais Cécile risque de regarder les dépenses
+                de très près demain matin.
+            </p>
+
+        </div>
+
+        <div class="finalStats">
+
+            <div class="finalStat">
+                Energie
+                <strong>
+                    ${game.energy}
+                </strong>
+            </div>
+
+            <div class="finalStat">
+                Budget
+                <strong>
+                    ${formatMoney(game.money)}
+                </strong>
+            </div>
+
+        </div>
+
+        <button
+            class="restartButton"
+            onclick="startGame()"
+        >
+            Recommencer
+        </button>
+
+    `;
+
+}
+
+
+/* =========================================================
+   TOAST
+========================================================= */
+
+function showToast(message) {
+
+    const toast =
+        document.getElementById("toast");
+
+    toast.textContent =
+        message;
+
+    toast.classList.add("show");
+
+    setTimeout(() => {
+
+        toast.classList.remove("show");
+
+    }, 2600);
+
+}
+
+
+/* =========================================================
+   LANCEMENT
+========================================================= */
+
+game = createGame();
+
+</script>
+
+</body>
+</html>
+```
